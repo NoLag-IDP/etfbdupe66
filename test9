@@ -1,0 +1,44 @@
+-- ===================== DUPE LOGIC (BOTH TOOLS ANIMATED) =====================
+local function duplicateItem()
+    local char = player.Character
+    if not char then 
+        warn("⚠️ Character not found")
+        return 
+    end
+    
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if not humanoid then return end
+    
+    local tool = char:FindFirstChildWhichIsA("Tool") or player.Backpack:FindFirstChildWhichIsA("Tool")
+    
+    if tool then
+        -- Store the original parent
+        local originalParent = tool.Parent
+        
+        -- Move tool to backpack temporarily
+        tool.Parent = player.Backpack
+        
+        -- Clone it
+        local clone = tool:Clone()
+        clone.Parent = player.Backpack
+        
+        -- Wait a bit
+        task.wait(0.1)
+        
+        -- Equip and unequip the clone to initialize animations
+        humanoid:EquipTool(clone)
+        task.wait(0.15)
+        humanoid:UnequipTools()
+        
+        task.wait(0.1)
+        
+        -- Re-equip original if it was equipped before
+        if originalParent == char then
+            humanoid:EquipTool(tool)
+        end
+        
+        print("✅ Item duplicated! Both should be animated now.")
+    else
+        warn("⚠️ No tool found to duplicate")
+    end
+end
