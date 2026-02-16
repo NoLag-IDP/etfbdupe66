@@ -1,0 +1,49 @@
+-- ===================== DUPE LOGIC (FIXED) =====================
+local function duplicateItem()
+    local char = player.Character
+    if not char then return end
+    
+    local tool = char:FindFirstChildWhichIsA("Tool") or player.Backpack:FindFirstChildWhichIsA("Tool")
+    
+    if tool then
+        -- Store if the tool was equipped
+        local wasEquipped = tool.Parent == char
+        
+        -- Clone the tool
+        local clone = tool:Clone()
+        
+        -- Fix handle properties to ensure animations work
+        if clone:FindFirstChild("Handle") then
+            local handle = clone.Handle
+            if handle:IsA("BasePart") then
+                handle.CanCollide = false
+                handle.Massless = true
+            end
+        end
+        
+        -- Reset animation tracks on the clone
+        for _, child in pairs(tool:GetDescendants()) do
+            if child:IsA("AnimationTrack") or child:IsA("AnimationController") then
+                local clonedChild = clone:FindFirstChild(child.Name, true)
+                if clonedChild and clonedChild:IsA("AnimationTrack") then
+                    clonedChild:Stop()
+                end
+            end
+        end
+        
+        -- Put clone in backpack
+        clone.Parent = player.Backpack
+        
+        -- If original was equipped, refresh it to reset animations
+        if wasEquipped then
+            task.wait(0.05)
+            tool.Parent = player.Backpack
+            task.wait(0.05)
+            char.Humanoid:EquipTool(tool)
+        end
+        
+        print("✅ Item duplicated successfully!")
+    else
+        warn("⚠️ No tool found to duplicate")
+    end
+end
